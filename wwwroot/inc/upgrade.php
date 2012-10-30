@@ -1591,7 +1591,6 @@ CREATE TABLE `CactiServer` (
 	`object_history_id` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	`before` INT(10) NULL DEFAULT NULL,
 	`after` INT(10) NULL DEFAULT NULL,
-	`time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	INDEX `Index 1` (`id`),
 	INDEX `Index 2` (`object_history_id`),
 	CONSTRAINT `ObjectChangeTag-FK-ObjectHistory` FOREIGN KEY (`object_history_id`) REFERENCES `ObjectHistory` (`object_history_id`)
