@@ -1709,9 +1709,41 @@ function saveEntityTags ()
 		throw new RackTablesError ('key not found in etype_by_pageno', RackTablesError::INTERNAL);
 	$realm = $etype_by_pageno[$pageno];
 	$entity_id = getBypassValue();
+    $before = array_keys(loadEntityTags($realm, $entity_id));
 	$taglist = isset ($_REQUEST['taglist']) ? $_REQUEST['taglist'] : array();
+    saveTagChanges($entity_id, $before, $taglist);
 	rebuildTagChainForEntity ($realm, $entity_id, buildTagChainFromIds ($taglist), TRUE);
 	return showFuncMessage (__FUNCTION__, 'OK');
+}
+
+$msgcode['saveTagChanges']['OK'] = 0;
+function saveTagChanges($entity_id, $before, $after)
+{
+    global $dbxlink;
+    $changed_before = array_diff($before, $after);
+    $changed_after = array_diff($after, $before);
+    $before_after = array();
+    foreach ($changed_before as $bef) {
+        $temp = array('before' => $bef);
+        count($changed_after) ? $temp['after'] = array_shift($changed_after) : NULL;
+        $before_after[] = $temp;
+    }
+    if (count($changed_after)) {
+        foreach ($changed_after as $aft)
+            $before_after[] = array('after' => $aft);
+    }
+    if (count($before_after)) {
+        recordObjectHistory($entity_id);
+        $object_history_id = $dbxlink->lastInsertId();
+        if ($object_history_id) {
+            foreach ($before_after as $change) {
+                $change['object_history_id'] = $object_history_id;
+                usePreparedInsertBlade("ObjectTagChange", $change);
+            }
+        }
+        return showFuncMessage(__FUNCTION__, 'OK', array("Tag changes saved succesfully."));
+    }
+    return;
 }
 
 $msgcode['rollTags']['OK'] = 67;
