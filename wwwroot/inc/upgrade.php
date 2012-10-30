@@ -1582,6 +1582,24 @@ CREATE TABLE `CactiServer` (
 			$query[] = "ALTER TABLE TagStorage ADD CONSTRAINT `TagStorage-FK-TagTree` FOREIGN KEY (tag_id, tag_is_assignable) REFERENCES TagTree (id, is_assignable)";
 			$query[] = "UPDATE Config SET varvalue = '0.20.2' WHERE varname = 'DB_VERSION'";
 			break;
+        case '0.20.3':
+            $query[] = "ALTER TABLE `ObjectHistory`
+	ADD COLUMN `object_history_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT AFTER `user_name`,
+	ADD PRIMARY KEY (`object_history_id`)";
+            $query[] = "CREATE TABLE `ObjectTagChange` (
+	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`object_history_id` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	`before` INT(10) NULL DEFAULT NULL,
+	`after` INT(10) NULL DEFAULT NULL,
+	`time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	INDEX `Index 1` (`id`),
+	INDEX `Index 2` (`object_history_id`),
+	CONSTRAINT `ObjectChangeTag-FK-ObjectHistory` FOREIGN KEY (`object_history_id`) REFERENCES `ObjectHistory` (`object_history_id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+";
+            $query[] = "UPDATE Config SET varvalue = '0.20.3' WHERE varname = 'DB_VERSION'";
 		case 'dictionary':
 			$query = reloadDictionary();
 			break;

@@ -780,6 +780,19 @@ CREATE TABLE `ObjectParentCompat` (
   UNIQUE KEY `parent_child` (`parent_objtype_id`,`child_objtype_id`)
 ) ENGINE=InnoDB;
 
+CREATE TABLE `ObjectTagChange` (
+	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`object_history_id` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	`before` INT(10) NULL DEFAULT NULL,
+	`after` INT(10) NULL DEFAULT NULL,
+	`time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	INDEX `Index 1` (`id`),
+	INDEX `Index 2` (`object_history_id`),
+	CONSTRAINT `ObjectChangeTag-FK-ObjectHistory` FOREIGN KEY (`object_history_id`) REFERENCES `ObjectHistory` (`object_history_id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+
 CREATE TABLE `Port` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `object_id` int(10) unsigned NOT NULL default '0',
@@ -882,7 +895,9 @@ CREATE TABLE `ObjectHistory` (
   `comment` text,
   `ctime` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `user_name` char(64) default NULL,
-  KEY `id` (`id`),
+  `object_history_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`object_history_id`),
+  INDEX `id` (`id`),
   CONSTRAINT `ObjectHistory-FK-object_id` FOREIGN KEY (`id`) REFERENCES `Object` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
