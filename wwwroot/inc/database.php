@@ -1441,9 +1441,9 @@ function createMolecule ($molData)
 function recordObjectHistory ($object_id)
 {
 	global $remote_username;
-	usePreparedExecuteBlade	(
-        // NULl corresponds to object_history_id field.
-		"INSERT INTO ObjectHistory  SELECT *, CURRENT_TIMESTAMP(), ?, NULL FROM Object WHERE id=?",
+	usePreparedExecuteBlade
+	(
+		"INSERT INTO ObjectHistory SELECT *, CURRENT_TIMESTAMP(), ? FROM Object WHERE id=?",
 		array ($remote_username, $object_id)
 	);
 }
@@ -3511,7 +3511,7 @@ function convertPDOException ($e)
 function usePreparedInsertBlade ($tablename, $columns)
 {
 	global $dbxlink;
-	$query = "INSERT INTO ${tablename} (" . '`'.implode ('`, `', array_keys ($columns)).'`';
+	$query = "INSERT INTO ${tablename} (" . implode (', ', array_keys ($columns));
 	$query .= ') VALUES (' . questionMarks (count ($columns)) . ')';
 	// Now the query should be as follows:
 	// INSERT INTO table (c1, c2, c3) VALUES (?, ?, ?)
