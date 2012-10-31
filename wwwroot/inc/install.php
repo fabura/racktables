@@ -780,18 +780,6 @@ CREATE TABLE `ObjectParentCompat` (
   UNIQUE KEY `parent_child` (`parent_objtype_id`,`child_objtype_id`)
 ) ENGINE=InnoDB;
 
-CREATE TABLE `ObjectTagChange` (
-	`id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-	`object_history_id` INT(10) UNSIGNED NOT NULL DEFAULT '0',
-	`before` INT(10) NULL DEFAULT NULL,
-	`after` INT(10) NULL DEFAULT NULL,
-	INDEX `Index 1` (`id`),
-	INDEX `Index 2` (`object_history_id`),
-	CONSTRAINT `ObjectChangeTag-FK-ObjectHistory` FOREIGN KEY (`object_history_id`) REFERENCES `ObjectHistory` (`object_history_id`)
-)
-COLLATE='utf8_general_ci'
-ENGINE=InnoDB;
-
 CREATE TABLE `Port` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `object_id` int(10) unsigned NOT NULL default '0',
@@ -938,6 +926,34 @@ CREATE TABLE `TagStorage` (
   KEY `tag_id-tag_is_assignable` (`tag_id`,`tag_is_assignable`),
   CONSTRAINT `TagStorage-FK-TagTree` FOREIGN KEY (`tag_id`, `tag_is_assignable`) REFERENCES `TagTree` (`id`, `is_assignable`)
 ) ENGINE=InnoDB;
+
+   CREATE TABLE `TagHistory` (
+	`entity_realm` ENUM('file','ipv4net','ipv4rspool','ipv4vs','ipv6net','location','object','rack','user','vst') NOT NULL DEFAULT 'object',
+	`entity_id` INT(10) UNSIGNED NOT NULL,
+	`tag_id` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	`tag_is_assignable` ENUM('yes','no') NOT NULL DEFAULT 'yes',
+	`user` CHAR(64) NULL DEFAULT NULL,
+	`date` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	`operation` ENUM('+','-') NOT NULL DEFAULT '+',
+	INDEX `entity_id` (`entity_id`),
+	INDEX `TagStorage-FK-tag_id` (`tag_id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+
+CREATE TRIGGER `TagHistoryDelete` AFTER DELETE ON `TagStorage` FOR EACH ROW INSERT INTO TagHistory SET  `entity_realm` = OLD.`entity_realm`,
+  `entity_id`  = OLD.`entity_id`,
+  `tag_id` = OLD.`tag_id`,
+  `tag_is_assignable`  = OLD.`tag_is_assignable`,
+  `user`  = OLD.`user`,
+  `operation` = '-';
+
+CREATE TRIGGER `TagHistoryInsert` AFTER INSERT ON `TagStorage` FOR EACH ROW INSERT INTO TagHistory SET  `entity_realm` = NEW.`entity_realm`,
+  `entity_id`  = NEW.`entity_id`,
+  `tag_id` = NEW.`tag_id`,
+  `tag_is_assignable`  = NEW.`tag_is_assignable`,
+  `user`  = NEW.`user`,
+  `operation` = '+';
 
 CREATE TABLE `TagTree` (
   `id` int(10) unsigned NOT NULL auto_increment,
