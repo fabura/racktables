@@ -25,7 +25,7 @@ try {
 		assertPermission();
 		header ('Content-Type: text/html; charset=UTF-8');
 		// call the main handler - page or tab handler.
-		if (isset ($tabhandler[$pageno][$tabno]))
+		if (isset ($tabhandler[$pageno][$tabno]) && $tabhandler[$pageno][$tabno] != null)
 		{
 			if (! is_callable ($tabhandler[$pageno][$tabno]))
 				throw new RackTablesError ("Missing handler function for node '${pageno}-${tabno}'", RackTablesError::INTERNAL);
@@ -37,8 +37,12 @@ try {
 				throw new RackTablesError ("Missing handler function for node '${pageno}'", RackTablesError::INTERNAL);
 			$page[$pageno]['handler'] ($tabno);
 		}
-		else
-			throw new RackTablesError ("Failed to find handler for page '${pageno}', tab '${tabno}'", RackTablesError::INTERNAL);
+		else {
+            // here our magic with routing to codeigniter is starting
+            require_once 'inc/routing-hack.php';
+            break;
+//            throw new RackTablesError ("Failed to find handler for page '${pageno}', tab '${tabno}'", RackTablesError::INTERNAL);
+        }
 		// Embed the current text in OB into interface layout (the latter also
 		// empties color message buffer).
 		$contents = ob_get_contents();
