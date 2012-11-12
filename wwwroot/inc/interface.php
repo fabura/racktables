@@ -910,9 +910,13 @@ function renderEditObjectForm()
 	finishPortlet();
 
 	echo '<table border=0 width=100%><tr><td>';
-	startPortlet ('history');
+	startPortlet ('History');
 	renderObjectHistory ($object_id);
 	finishPortlet();
+
+    //startPortlet ('Tag Change History');
+    //renderObjectTagHistory($object_id);
+    //finishPortlet();
 	echo '</td></tr></table>';
 }
 
@@ -999,6 +1003,10 @@ function renderEditRackForm ($rack_id)
 	startPortlet ('History');
 	renderObjectHistory ($rack_id);
 	finishPortlet();
+
+    //startPortlet ('Tag Change History');
+    //renderObjectTagHistory($rack_id);
+    //finishPortlet();
 }
 
 // used by renderGridForm() and renderRackPage()
@@ -2119,10 +2127,10 @@ function renderObjectHistory ($object_id)
 	$order = 'odd';
 	global $nextorder;
 	echo '<table border=0 cellpadding=5 cellspacing=0 align=center class=cooltable>';
-	echo '<tr><th>change time</th><th>author</th><th>name</th><th>visible label</th><th>asset no</th><th>has problems?</th><th>comment</th></tr>';
+	echo '<tr><th>change time</th><th>author</th><th>name</th><th>visible label</th><th>asset no</th><th>has problems?</th><th>comment</th><th>tag changes</th></tr>';
 	$result = usePreparedSelectBlade
 	(
-		'SELECT ctime, user_name, name, label, asset_no, has_problems, comment FROM ObjectHistory WHERE id=? ORDER BY ctime',
+		'SELECT ctime, user_name, name, label, asset_no, has_problems, comment, object_history_id FROM ObjectHistory WHERE id=? ORDER BY ctime',
 		array ($object_id)
 	);
 	while ($row = $result->fetch (PDO::FETCH_NUM))
@@ -2130,10 +2138,72 @@ function renderObjectHistory ($object_id)
 		echo "<tr class=row_${order}><td>${row[0]}</td>";
 		for ($i = 1; $i <= 6; $i++)
 			echo "<td>" . $row[$i] . "</td>";
+        echo "<td>" . renderTagChanges($object_id, $row[7]) . "</td>";
 		echo "</tr>\n";
 		$order = $nextorder[$order];
 	}
 	echo "</table><br>\n";
+}
+function renderTagChanges($object_id, $object_history_id)
+{
+    $order = 'odd';
+    global $nextorder;
+    $result = usePreparedSelectBlade(
+        "SELECT ObjectHistory.ctime, (SELECT TagTree.tag FROM TagTree WHERE TagTree.id = ObjectTagChange.before),
+        (SELECT TagTree.tag FROM TagTree WHERE TagTree.id = ObjectTagChange.after)
+        FROM ObjectTagChange, ObjectHistory
+        WHERE ObjectHistory.id =? AND ObjectHistory.object_history_id = '{$object_history_id}' AND ObjectHistory.object_history_id = ObjectTagChange.object_history_id
+        ORDER BY ObjectHistory.ctime",
+        array($object_id)
+    );
+    $changes = '';
+    while ($row = $result->fetch (PDO::FETCH_NUM))
+    {
+        if(isset($row[1]))
+        {
+            $changes .= '-'.$row[1].'<br>';
+        }
+        if(isset($row[2]))
+        {
+            $changes .= '+'.$row[2].'<br>';
+        }
+    }
+    return $changes;
+}
+function renderObjectTagHistory($object_id)
+{
+    $order = 'odd';
+    global $nextorder;
+    echo '<table border=0 cellpadding=5 cellspacing=0 align=center class=cooltable>';
+    echo '<tr><th>change time</th><th>author</th><th>name</th><th>tag before</th><th>tag after</th><th>tag changes</th></tr>';
+    $result = usePreparedSelectBlade(
+        'SELECT ObjectHistory.ctime, ObjectHistory.user_name, ObjectHistory.name,
+        (SELECT TagTree.tag FROM TagTree WHERE TagTree.id = ObjectTagChange.before),
+        (SELECT TagTree.tag FROM TagTree WHERE TagTree.id = ObjectTagChange.after)
+        FROM ObjectTagChange, ObjectHistory
+        WHERE ObjectHistory.id =? AND ObjectHistory.object_history_id = ObjectTagChange.object_history_id
+        ORDER BY ObjectHistory.ctime',
+        array($object_id)
+    );
+    while ($row = $result->fetch (PDO::FETCH_NUM))
+    {
+        echo "<tr><td>${row[0]}</td>";
+        $changes = '';
+        if(isset($row[3]))
+        {
+              $changes .= '-'.$row[3].'<br>';
+        }
+        if(isset($row[4]))
+        {
+            $changes .= '+'.$row[4].'<br>';
+        }
+        for ($i = 1; $i <= 5; $i++)
+            echo "<td>" . $row[$i] . "</td>";
+        echo "<td>" . $changes . "</td>";
+        echo "</tr>\n";
+        $order = $nextorder[$order];
+    }
+    echo "</table><br>\n";
 }
 
 function renderRackspaceHistory ()
@@ -3928,10 +3998,14 @@ function renderEditLocationForm ($location_id)
 	echo "</td></tr>\n";
 	echo '</form></table><br>';
 	finishPortlet();
-	
-	startPortlet ('History');
+
+    startPortlet ('History');
 	renderObjectHistory ($location_id);
-	finishPortlet();
+    finishPortlet();
+
+    //startPortlet ('Tag Change History');
+    //renderObjectTagHistory($location_id);
+    //finishPortlet();
 }
 
 function renderRackPage ($rack_id)
