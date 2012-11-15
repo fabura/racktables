@@ -1802,6 +1802,10 @@ function getCellFilter ()
 		$ret['andor'] = getConfigVar ('FILTER_DEFAULT_ANDOR');
 	else
 		$ret['urlextra'] .= '&andor=' . $ret['andor'];
+
+    if(isset($_REQUEST['object_name_regex'])){
+        $ret['object_name_regex'] = $_REQUEST['object_name_regex'];
+    }
 	return $ret;
 }
 

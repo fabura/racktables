@@ -913,10 +913,6 @@ function renderEditObjectForm()
 	startPortlet ('History');
 	renderObjectHistory ($object_id);
 	finishPortlet();
-
-    //startPortlet ('Tag Change History');
-    //renderObjectTagHistory($object_id);
-    //finishPortlet();
 	echo '</td></tr></table>';
 }
 
@@ -5316,6 +5312,158 @@ END
 	finishPortlet();
 }
 
+function renderTagHistoryFilter($preselect, $cell_list){
+    addJS ('js/tag-cb.js');
+    addJS ('tag_cb.enableNegation()', TRUE);
+
+    global $pageno, $tabno, $taglist, $tagtree;
+
+    $title = 'History filters';
+    startPortlet ($title);
+    echo "<form method=get>\n";
+    echo '<table border=0 align=center cellspacing=0 class="tagtree">';
+    $ruler = "<tr><td colspan=2 class=tagbox><hr></td></tr>\n";
+    $hr = '';
+    // "reset filter" button only gets active when a filter is applied
+    $enable_reset = FALSE;
+    // "apply filter" button only gets active when there are checkbox/textarea inputs on the roster
+    $enable_apply = FALSE;
+    // and/or block
+    if (getConfigVar ('FILTER_SUGGEST_ANDOR') == 'yes' or strlen ($preselect['andor']))
+    {
+        echo $hr;
+        $hr = $ruler;
+        $andor = strlen ($preselect['andor']) ? $preselect['andor'] : getConfigVar ('FILTER_DEFAULT_ANDOR');
+        echo '<tr>';
+        foreach (array ('and', 'or') as $boolop)
+        {
+            $class = 'tagbox' . ($andor == $boolop ? ' selected' : '');
+            $checked = $andor == $boolop ? ' checked' : '';
+            echo "<td class='${class}'><label><input type=radio name=andor value=${boolop}";
+            echo $checked . ">${boolop}</input></label></td>";
+        }
+    }
+
+    $negated_chain = array();
+    foreach ($preselect['negatedlist'] as $key)
+        $negated_chain[] = array ('id' => $key);
+    // tags block
+    if (getConfigVar ('FILTER_SUGGEST_TAGS') == 'yes' or count ($preselect['tagidlist']))
+    {
+        if (count ($preselect['tagidlist']))
+            $enable_reset = TRUE;
+        echo $hr;
+        $hr = $ruler;
+
+        // Show a tree of tags, pre-select according to currently requested list filter.
+        $objectivetags = getShrinkedTagTree($cell_list, 'tagHistory', $preselect);
+        if (!count ($objectivetags))
+            echo "<tr><td colspan=2 class='tagbox sparenetwork'>(nothing is tagged yet)</td></tr>";
+        else
+        {
+            $enable_apply = TRUE;
+            printTagCheckboxTable ('cft', buildTagChainFromIds ($preselect['tagidlist']), $negated_chain, $objectivetags, 'tagHistory');
+        }
+
+        if (getConfigVar('SHRINK_TAG_TREE_ON_CLICK') == 'yes')
+            addJS ('tag_cb.enableSubmitOnClick()', TRUE);
+    }
+    // predicates block
+    if (getConfigVar ('FILTER_SUGGEST_PREDICATES') == 'yes' or count ($preselect['pnamelist']))
+    {
+        if (count ($preselect['pnamelist']))
+            $enable_reset = TRUE;
+        echo $hr;
+        $hr = $ruler;
+        global $pTable;
+        $myPredicates = array();
+        $psieve = getConfigVar ('FILTER_PREDICATE_SIEVE');
+        // Repack matching predicates in a way, which tagOnChain() understands.
+        foreach (array_keys ($pTable) as $pname)
+            if (preg_match ("/${psieve}/", $pname))
+                $myPredicates[] = array ('id' => $pname, 'tag' => $pname);
+        if (!count ($myPredicates))
+            echo "<tr><td colspan=2 class='tagbox sparenetwork'>(no predicates to show)</td></tr>";
+        else
+        {
+            $enable_apply = TRUE;
+            // Repack preselect likewise.
+            $myPreselect = array();
+            foreach ($preselect['pnamelist'] as $pname)
+                $myPreselect[] = array ('id' => $pname);
+            printTagCheckboxTable ('cfp', $myPreselect, $negated_chain, $myPredicates);
+        }
+    }
+    // extra code
+    $enable_textify = FALSE;
+    echo "<tr><td colspan=2><textarea name='object_name_regex' placeholder='Regex for obj.name' ${class}>\n" . $preselect['object_name_regex'];
+    echo "</textarea></td></tr>\n";
+    // submit block
+    {
+        echo $hr;
+        $hr = $ruler;
+        echo '<tr><td class=tdleft>';
+        // "apply"
+        echo "<input type=hidden name=page value=${pageno}>\n";
+        echo "<input type=hidden name=tab value=${tabno}>\n";
+        // FIXME: The user will be able to "submit" the empty form even without a "submit"
+        // input. To make things consistent, it is necessary to avoid pritning both <FORM>
+        // and "and/or" radio-buttons, when enable_apply isn't TRUE.
+        if (!$enable_apply)
+            printImageHREF ('setfilter gray');
+        else
+            printImageHREF ('setfilter', 'set filter', TRUE);
+        echo '</form>';
+        if ($enable_textify)
+        {
+            $text = empty ($preselect['text']) || empty ($preselect['extratext'])
+                ? $preselect['text']
+                : '(' . $preselect['text'] . ')';
+            $text .= !empty ($preselect['extratext']) && !empty ($preselect['text'])
+                ? ' ' . $preselect['andor'] . ' '
+                : '';
+            $text .= empty ($preselect['text']) || empty ($preselect['extratext'])
+                ? $preselect['extratext']
+                : '(' . $preselect['extratext'] . ')';
+            $text = addslashes ($text);
+            echo " <a href=\"#\" onclick=\"textifyCellFilter(this, '$text'); return false\">";
+            printImageHREF ('COPY', 'Make text expression from current filter');
+            echo '</a>';
+            addJS (<<<END
+function textifyCellFilter(target, text)
+{
+	var portlet = $(target).closest ('.portlet');
+	portlet.find ('textarea[name="object_name_regex"]').html (text);
+	portlet.find ('input[type="checkbox"]').attr('checked', '');
+	portlet.find ('input[type="radio"][value="and"]').attr('checked','true');
+}
+END
+                , TRUE
+            );
+        }
+        echo '</td><td class=tdright>';
+        // "reset"
+        if (!$enable_reset)
+            printImageHREF ('resetfilter gray');
+        else
+        {
+            echo "<form method=get>\n";
+            echo "<input type=hidden name=page value=${pageno}>\n";
+            echo "<input type=hidden name=tab value=${tabno}>\n";
+            echo "<input type=hidden name='cft[]' value=''>\n";
+            echo "<input type=hidden name='cfp[]' value=''>\n";
+            echo "<input type=hidden name='nft[]' value=''>\n";
+            echo "<input type=hidden name='nfp[]' value=''>\n";
+            echo "<input type=hidden name='cfe' value=''>\n";
+            printImageHREF ('resetfilter', 'reset filter', TRUE);
+            echo '</form>';
+        }
+        echo '</td></tr>';
+    }
+    echo '</table>';
+    finishPortlet();
+}
+
 // Dump all tags in a single SELECT element.
 function renderNewEntityTags ($for_realm = '')
 {
@@ -8768,6 +8916,70 @@ function renderExpirations ()
 		}
 		finishPortlet ();
 	}
+}
+
+
+function renderTagHistoryReports()
+{
+    startPortlet("There is mega tag changes reports!");
+    global $pageno, $nextorder;
+    $cellfilter = getCellFilter();
+    $tagHistories = listCells('tagHistory');
+
+    if (!$cellfilter['tagidlist']) {
+        $tagIds = listCells('tag');
+        $cellfilter['tagidlist'] = array();
+        foreach ($tagIds as $tag) {
+            $cellfilter['tagidlist'][] = $tag['id'];
+        }
+    }
+
+    $filteredHistories = array();
+//    filter tagHistories
+    foreach ($tagHistories as $history) {
+        $filtered = true;
+        if ($cellfilter['object_name_regex']) {
+            $filtered = false;
+            $regex = $cellfilter['object_name_regex'];
+            if (@preg_match("/" . $regex . "/", $history['entity_name'])) {
+                $filtered = true;
+            }
+        }
+        if (!in_array($history['tag_id'], $cellfilter['tagidlist'])) {
+            $filtered = false;
+        }
+        if ($filtered) {
+            $filteredHistories[] = $history;
+        }
+    }
+
+
+    echo "<table border=0 class='tag-changes-view objectview'>\n";
+    echo "<tr><td class=pcleft>";
+    if (count($filteredHistories) > 0) {
+        startPortlet('Tag changes (' . count($tagHistories) . ')');
+        echo '<br><br><table border=0 cellpadding=5 cellspacing=0 align=center class=cooltable>';
+        echo '<tr><th>Object</th><th>Tag</th><th>Operation type</th><th>Date</th></tr>';
+        $order = 'odd';
+        foreach ($filteredHistories as $obj) {
+            echo "<tr class='row_${order} tdleft' valign=top><td><a href='" . makeHref(array('page' => 'object', 'object_id' => $obj['entity_id'])) . "'><strong>${obj['entity_name']}</strong></a></td>";
+            echo "<td>${obj['tag_name']}</td>";
+            echo "<td>${obj['operation']}</td>";
+            echo "<td>".$obj['date']." (".formatAge($obj['stamp']).")"."</td>";
+            echo '</tr>';
+            $order = $nextorder[$order];
+        }
+        echo '</table>';
+        finishPortlet();
+    } else
+        echo '<h2>No objects exist</h2>';
+
+    echo "</td><td class=pcright width='25%'>";
+    renderTagHistoryFilter($cellfilter, $filteredHistories);
+//    renderCellFilterPortlet ($cellfilter, 'object', $objects);
+    echo "</td></tr></table>\n";
+
+    finishPortlet();
 }
 
 // returns an array with two items - each is HTML-formatted <TD> tag

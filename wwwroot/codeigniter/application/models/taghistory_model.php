@@ -4,7 +4,6 @@
  * User: nikolay.izumov
  * Date: 10.11.12
  * Time: 16:27
- * To change this template use File | Settings | File Templates.
  */
 class taghistory_model extends CI_Model
 {
@@ -12,9 +11,14 @@ class taghistory_model extends CI_Model
     {
         $this->load->database();
     }
-    public function get_taghistory()
+    //todo implement select using conditions
+    public function get_taghistory($conditions = array())
     {
-            $query = $this->db->get('taghistory');
-            return $query->result_array();
+        $db = $this->db;
+        $db->select("*");
+        $db->from("taghistory");
+        $db->join("tagtree",('tagtree.id = taghistory.tag_id'), "left");
+        $db->join("object",('object.id = taghistory.entity_id'), "left");
+        return $db->get()->result();
     }
 }

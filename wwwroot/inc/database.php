@@ -191,6 +191,37 @@ $SQLSchema = array
 		'keycolumn' => 'id',
 		'ordcolumns' => array ('description'),
 	),
+    'tagHistory' => array
+    (
+        'table' => 'TagHistory',
+        'columns' => array
+        (
+            'id' => 'id',
+            'entity_realm' => 'entity_realm',
+            'entity_id' => 'entity_id',
+            'entity_name' =>   '(SELECT name FROM object WHERE object.id = entity_id)',
+            'tag_id' => 'tag_id',
+            'tag_name' => '(SELECT tag FROM tagtree WHERE tagtree.id = tag_id )',
+            'user' => 'user',
+            'stamp' => 'UNIX_TIMESTAMP(date)',
+            'date' => 'date',
+            'operation' => 'operation'
+        ),
+        'keycolumn' => 'id',
+        'ordcolumns' => array('date'),
+    ),
+    'tag' => array
+    (
+        'table' => 'TagTree',
+        'columns' => array
+        (
+            'id' => 'id',
+            'parent_id' => 'parent_id',
+            'tag' => 'tag',
+        ),
+        'keycolumn' => 'id',
+        'ordcolumns' => array('id'),
+    ),
 );
 
 $searchfunc = array
@@ -3779,6 +3810,10 @@ function generateEntityAutoTags ($cell)
 			$ret[] = array ('tag' => '$vstid_' . $cell['id']);
 			$ret[] = array ('tag' => '$any_vst');
 			break;
+        case 'tagHistory':
+            break;
+        case 'tag':
+            break;
 		default:
 			throw new InvalidArgException ('cell', '(array)', 'this input does not belong here');
 			break;

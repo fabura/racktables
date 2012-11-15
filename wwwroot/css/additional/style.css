@@ -1,0 +1,26 @@
+.root-node {
+    background: green;
+}
+
+.leaf-node {
+    background: red;
+}
+
+div.data {
+    float: left;
+    margin: 10px;
+}
+
+div.filters {
+    float: left;
+    margin: 10px;
+}
+
+.data> tr {
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.data  td {
+    padding: 3px;
+}

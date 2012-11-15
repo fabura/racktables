@@ -22,6 +22,7 @@ class Reports extends CI_Controller {
     {
         parent::__construct();
         $this->load->model('taghistory_model');
+        $this->load->model('objects_model');
     }
     public function taghistory()
     {
@@ -39,7 +40,9 @@ class Reports extends CI_Controller {
             show_404();
         }
         $data['title'] = "taghistory";
-        $data['taghistory'] = $this->taghistory_model->get_taghistory();
+        $conditions = array();
+        $data['taghistory'] = $this->taghistory_model->get_taghistory($conditions);
+        $data['objects'] = $this->objects_model->get_objects();
         $data['pageno'] = $pageno;
         $data['tabno'] = $tabno;
 
