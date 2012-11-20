@@ -1,9 +1,19 @@
+.separator {
+    border-bottom: 2px solid gray;
+}
+
 .root-node {
-    background: green;
+    /*background: green;*/
+    padding-left: 16px;
 }
 
 .leaf-node {
-    background: red;
+    /*background: red;*/
+    padding-left: 26px;
+}
+
+.filters .selected-true {
+    background-color: #A0FFA0;
 }
 
 div.data {

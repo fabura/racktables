@@ -43,6 +43,7 @@ class Reports extends CI_Controller {
         $conditions = array();
         $data['taghistory'] = $this->taghistory_model->get_taghistory($conditions);
         $data['objects'] = $this->objects_model->get_objects();
+        $data['mountinfo'] = getMountInfo(array_map(function($elem){return $elem->id;}, $data["objects"]));
         $data['pageno'] = $pageno;
         $data['tabno'] = $tabno;
 
