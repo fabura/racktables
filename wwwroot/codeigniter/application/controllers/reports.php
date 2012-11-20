@@ -41,6 +41,18 @@ class Reports extends CI_Controller {
         }
         $data['title'] = "taghistory";
         $conditions = array();
+
+        if(is_array($_POST))
+        {
+            //набор $object_id
+            $conditions['tag'] = isset($_POST['tag']) ? array_keys($_POST['tag']) : null;
+            //набор $tag_id
+            $conditions['object'] = isset($_POST['object']) ? array_keys($_POST['object']) : null;
+
+            $conditions['dateFrom'] = isset($_POST['dateFrom']) ? $_POST['dateFrom']." 00:00:00" : null;
+            $conditions['dateTo'] = isset($_POST['dateTo']) ?  $_POST['dateTo']." 23:59:59" : null;
+
+        }
         $data['taghistory'] = $this->taghistory_model->get_taghistory($conditions);
         $data['objects'] = $this->objects_model->get_objects();
         $data['mountinfo'] = getMountInfo(array_map(function($elem){return $elem->id;}, $data["objects"]));

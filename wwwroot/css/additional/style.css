@@ -19,6 +19,7 @@
 div.data {
     float: left;
     margin: 10px;
+    width: 600px;
 }
 
 div.filters {
@@ -26,11 +27,42 @@ div.filters {
     margin: 10px;
 }
 
-.data> tr {
+.data tr {
     padding-left: 3px;
     padding-right: 3px;
 }
 
 .data  td {
     padding: 3px;
+}
+.filters{
+    height: 400px;
+    width: 1000px;
+    /*border: 2px solid red;*/
+}
+#tab{
+    border: 2px solid gray;
+    float: left;
+    margin: 10px;
+}
+#tag_tree{
+    height: 675px;
+    width: 330px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+#object_filter{
+    height: 675px;
+    width: 330px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+#filter_buttons{
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 200px;
+    margin: 10px;
+  }
+#dateFrom, #dateTo, #btnSubmit{
+    float: right;
 }
