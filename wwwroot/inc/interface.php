@@ -2052,7 +2052,7 @@ function renderDepot ()
 		{
 			startPortlet ('Objects (' . count ($objects) . ')');
 			echo '<br><br><table border=0 cellpadding=5 cellspacing=0 align=center class=cooltable>';
-			echo '<tr><th>Common name</th><th>Visible label</th><th>Asset tag</th><th>Row/Rack or Container</th></tr>';
+			echo '<tr><th>Common name</th><th>Visible label</th><th>Asset tag</th><th>Row/Rack or Container</th><th>Serial number</th></tr>';
 			$order = 'odd';
 			# gather IDs of all objects and fetch rackspace info in one pass
 			$idlist = array();
@@ -2075,6 +2075,7 @@ function renderDepot ()
 					foreach ($mountinfo[$obj['id']] as $mi)
 						$places[] = mkA ($mi['row_name'], 'row', $mi['row_id']) . '/' . mkA ($mi['rack_name'], 'rack', $mi['rack_id']);
 				echo "<td>" . implode (', ', $places) . '</td>';
+				echo "<td>${obj['serial_no']}</td>";
 				echo '</tr>';
 				$order = $nextorder[$order];
 			}

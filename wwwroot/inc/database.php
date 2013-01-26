@@ -31,6 +31,7 @@ $SQLSchema = array
 			'nports' => '(SELECT COUNT(*) FROM Port WHERE object_id = RackObject.id)',
 			'8021q_domain_id' => '(SELECT domain_id FROM VLANSwitch WHERE object_id = id LIMIT 1)',
 			'8021q_template_id' => '(SELECT template_id FROM VLANSwitch WHERE object_id = id LIMIT 1)',
+            'serial_no' => "(SELECT string_value FROM AttributeValue WHERE AttributeValue.object_id = id AND attr_id = (SELECT `id` FROM Attribute WHERE `name` = 'OEM S/N 1'))"
 		),
 		'keycolumn' => 'id',
 		'ordcolumns' => array ('RackObject.name'),
