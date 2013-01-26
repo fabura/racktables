@@ -16,4 +16,4 @@
 
     $_SERVER["REQUEST_URI"] = $new_request_uri;
     chdir($codeIgniterLocation);
-    include_once ("/index.php");
+    include_once ("./index.php");

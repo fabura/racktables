@@ -20,7 +20,7 @@ class objects_model extends CI_Model
          */
         $db = $this->db;
         $db->select("*");
-        $db->from("object");
+        $db->from("Object");
 //        $db->join("AttributeMap",('object.objtype_id = AttributeMap.objtype_id'), "left");
         return $db->get()->result();
     }
