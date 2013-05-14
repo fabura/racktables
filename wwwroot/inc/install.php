@@ -927,7 +927,7 @@ CREATE TABLE `TagStorage` (
   CONSTRAINT `TagStorage-FK-TagTree` FOREIGN KEY (`tag_id`, `tag_is_assignable`) REFERENCES `TagTree` (`id`, `is_assignable`)
 ) ENGINE=InnoDB;
 
-   CREATE TABLE `TagHistory` (
+CREATE TABLE `TagHistory` (
 	`entity_realm` ENUM('file','ipv4net','ipv4rspool','ipv4vs','ipv6net','location','object','rack','user','vst') NOT NULL DEFAULT 'object',
 	`entity_id` INT(10) UNSIGNED NOT NULL,
 	`tag_id` INT(10) UNSIGNED NOT NULL DEFAULT '0',
@@ -944,14 +944,12 @@ ENGINE=InnoDB;
 CREATE TRIGGER `TagHistoryDelete` AFTER DELETE ON `TagStorage` FOR EACH ROW INSERT INTO TagHistory SET  `entity_realm` = OLD.`entity_realm`,
   `entity_id`  = OLD.`entity_id`,
   `tag_id` = OLD.`tag_id`,
-  `tag_is_assignable`  = OLD.`tag_is_assignable`,
   `user`  = OLD.`user`,
   `operation` = '-';
 
 CREATE TRIGGER `TagHistoryInsert` AFTER INSERT ON `TagStorage` FOR EACH ROW INSERT INTO TagHistory SET  `entity_realm` = NEW.`entity_realm`,
   `entity_id`  = NEW.`entity_id`,
   `tag_id` = NEW.`tag_id`,
-  `tag_is_assignable`  = NEW.`tag_is_assignable`,
   `user`  = NEW.`user`,
   `operation` = '+';
 
