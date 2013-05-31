@@ -21,7 +21,7 @@
 
 <table border=0 cellpadding=0 cellspacing=0 width="100%" height="100%" class="maintable">
     <tr class="mainheader"><td>
-        MyCompanyName RackTables <a href="http://racktables.org" title="Visit RackTables site">0.20.1</a><ul class="qlinks"><li><a href="index.php?page=depot">Objects</a></li><li><a href="index.php?page=ipv4space">IPv4&nbsp;space</a></li><li><a href="index.php?page=rackspace">Rackspace</a></li></ul> <div style="float: right" class=greeting><a href='index.php?page=myaccount&tab=default'>RackTables Administrator</a> [ <a href='?logout'>logout</a> ]</div>
+        MyCompanyName RackTables <a href="http://racktables.org" title="Visit RackTables site">0.20.2</a><ul class="qlinks"><li><a href="index.php?page=depot">Objects</a></li><li><a href="index.php?page=ipv4space">IPv4&nbsp;space</a></li><li><a href="index.php?page=rackspace">Rackspace</a></li></ul> <div style="float: right" class=greeting><a href='index.php?page=myaccount&tab=default'>RackTables Administrator</a> [ <a href='?logout'>logout</a> ]</div>
     </td></tr>
     <tr><td class="menubar">
         <table border="0" width="100%" cellpadding="3" cellspacing="0">

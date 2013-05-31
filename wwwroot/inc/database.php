@@ -1475,7 +1475,7 @@ function recordObjectHistory ($object_id)
 	global $remote_username;
 	usePreparedExecuteBlade
 	(
-		"INSERT INTO ObjectHistory (id, `name`, `label`, objtype_id, asset_no, has_problems, `comment`, ctime, user_name`ObjectHistory`)
+		"INSERT INTO ObjectHistory (id, `name`, `label`, objtype_id, asset_no, has_problems, `comment`, ctime, user_name )
  		 SELECT id, `name`, label, objtype_id, asset_no, has_problems, `comment`, CURRENT_TIMESTAMP(), ? FROM Object WHERE id=?",
 		array ($remote_username, $object_id)
 	);
