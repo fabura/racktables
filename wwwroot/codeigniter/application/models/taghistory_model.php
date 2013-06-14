@@ -17,7 +17,7 @@ class taghistory_model extends CI_Model
         if(is_null($conditions['tag']) || is_null($conditions['object']) || $conditions['dateFrom'] > $conditions['dateTo'])
             return null;
         $db = $this->db;
-        $db->select("*");
+        $db->select("*, Object.asset_no");
         $db->from("TagHistory");
 
         $db->where_in('TagHistory.tag_id', $conditions['tag']);

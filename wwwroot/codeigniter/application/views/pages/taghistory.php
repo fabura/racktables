@@ -10,6 +10,7 @@
                         <th ng-click="sort('operation')">Operation</th>
                         <th ng-click="sort('date')">Date</th>
                         <th ng-click="sort('user')">User</th>
+                        <th ng-click="sort('asset_no')">Asset</th>
                     </tr>
                     </thead>
                     <tr ng-repeat="elem in tagHistory | orderBy:orderBy:reverse">
@@ -19,13 +20,14 @@
                         <td>
                             {{ elem.tag }}
                         </td>
-                        <td>
+                        <td style="text-align: center; font-weight: bolder; font-size: larger">
                             {{ elem.operation }}
                         </td>
                         <td>
                             {{ elem.date }}
                         </td>
                         <td>{{ elem.user }}</td>
+                        <td>{{ elem.asset_no }}</td>
                     </tr>
                 </table>
             </div>
