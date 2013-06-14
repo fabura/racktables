@@ -51,8 +51,8 @@
                     <div id="tab">
                         <h2 align="center">Objects</h2>
                         <div id="object_filter" class="filter" ng-controller="ObjectsCtrl">
-                            Filter : <input ng-model="query">
-                            <div><input type="checkbox" ng-model="forall" ng-change="toggle()">For all</div>
+                            Filter : <input name="query" ng-model="query">
+                            <div><input name="forall" type="checkbox" ng-model="forall" ng-change="toggle()">For all</div>
                             <table>
                                 <thead>
                                 <tr>
@@ -92,6 +92,7 @@
     arrays.objects = <?php echo json_encode($objects);?>;
     arrays.tagHistory = <?php echo json_encode($taghistory); ?>;
     arrays.mountinfo = <?php echo json_encode($mountinfo); ?>;
+    arrays.filtervalues = <?php echo json_encode($filtervalues);?>
 </script>
 <script type="text/javascript" src="/js/additional/angular.js"></script>
 <script type="text/javascript" src="/js/additional/controllers.js"></script>

@@ -41,6 +41,20 @@ function TagHistoryCtrl($scope) {
 function TagTreeCtrl($scope) {
     $scope.tagTree = arrays.tagTree;
 
+    var checkedObjects = [];
+    const storedCheckedTags = arrays.filtervalues.tag  ? arrays.filtervalues.tag : 0;
+    for (var i = 0; i < storedCheckedTags.length; i++) {
+        checkedObjects[storedCheckedTags[i]] = true;
+    }
+    for (node in $scope.tagTree) {
+        node = $scope.tagTree[node];
+        node.checked = checkedObjects[node.id] ? true : false;
+        for (kid in node.kids) {
+            kid = node.kids[kid];
+            kid.checked = checkedObjects[kid.id] ? true : false;
+        }
+    }
+
     $scope.check = function (nodeId) {
         for (node in $scope.tagTree) {
             node = $scope.tagTree[node];
@@ -58,6 +72,7 @@ function TagTreeCtrl($scope) {
 function ObjectsCtrl($scope) {
     $scope.objects = arrays.objects;
     $scope.mountinfo = arrays.mountinfo;
+    $scope.query = arrays.filtervalues.query;
 
     $scope.rack = function (id) {
 
@@ -70,13 +85,23 @@ function ObjectsCtrl($scope) {
         }
     };
 
-    $scope.forall = true;
+    $scope.forall = arrays.filtervalues.forall === "on";
     $scope.toggle = function () {
         for (var i = 0; i < $scope.objects.length; i++) {
             $scope.objects[i].checked = $scope.forall;
         }
     };
-    $scope.toggle();
+
+    var checkedObjects = [];
+    for (var i = 0; i < arrays.filtervalues.object; i++) {
+        checkedObjects[arrays.filtervalues.object[i]] = true;
+    }
+    for (var i = 0; i < $scope.objects.length; i++) {
+        var object = $scope.objects[i];
+        object.checked = checkedObjects[object.id] ? true : false;
+    }
+
+//    $scope.toggle();
 }
 
 function DateCtrl($scope) {

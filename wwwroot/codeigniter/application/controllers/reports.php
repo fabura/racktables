@@ -27,14 +27,7 @@ class Reports extends CI_Controller {
     public function taghistory()
     {
         global $pageno, $tabno;
-        /*
-        $header_data = array('tab'=>$tab['reports'], 'pageno'=>$pageno, 'tabno'=>$tabno);
-        $this->load->view('header_view', $header_data);
 
-        $data = array('db'=> 'Передали массив данных из контроллера в представление');
-        $this->load->view('taghistory_view', $header_data);
-
-        $this->load->view('footer_view');*/
         if(!file_exists('application/views/pages/taghistory.php'))
         {
             show_404();
@@ -51,9 +44,12 @@ class Reports extends CI_Controller {
 
             $conditions['dateFrom'] = isset($_POST['dateFrom']) ? $_POST['dateFrom']." 00:00:00" : null;
             $conditions['dateTo'] = isset($_POST['dateTo']) ?  $_POST['dateTo']." 23:59:59" : null;
-
+            $conditions['query'] = isset($_POST['query']) ?  $_POST['query'] : "";
+            $conditions['forall'] = isset($_POST['forall']) ?  $_POST['forall'] : "";
         }
+
         $data['taghistory'] = $this->taghistory_model->get_taghistory($conditions);
+        $data['filtervalues'] = $conditions;
         $data['objects'] = $this->objects_model->get_objects();
         $data['mountinfo'] = getMountInfo(array_map(function($elem){return $elem->id;}, $data["objects"]));
         $data['pageno'] = $pageno;
