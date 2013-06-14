@@ -4,6 +4,24 @@
  * Date: 15.11.12
  * Time: 15:54
  */
+angular.module('racktables_taghistory', []).
+    filter('search', function () {
+        return function (input, query) {
+            var result = [];
+            var regexp = new RegExp(query, 'ig');
+            for (var index in input) {
+                var obj = input[index];
+                if (obj.hasOwnProperty("name")) {
+                    if (regexp.test(obj.name)) {
+                        result.push(obj);
+                    }
+                }
+
+            }
+            return result;
+        }
+    });
+
 function TagHistoryCtrl($scope) {
     $scope.tagHistory = arrays.tagHistory;
 
@@ -53,8 +71,8 @@ function ObjectsCtrl($scope) {
     };
 
     $scope.forall = true;
-    $scope.toggle = function(){
-        for(var i = 0; i <  $scope.objects.length; i++){
+    $scope.toggle = function () {
+        for (var i = 0; i < $scope.objects.length; i++) {
             $scope.objects[i].checked = $scope.forall;
         }
     };

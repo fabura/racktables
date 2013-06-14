@@ -1,4 +1,4 @@
-<tr ng-app>
+<tr ng-app="racktables_taghistory">
     <td>
         <div class="" id="taghistory">
             <div class="data" id="tab" ng-controller="TagHistoryCtrl">
@@ -39,7 +39,7 @@
                                        ng-model="rootNode.checked">
 
                                 {{rootNode.tag}}</div>
-                                <div ng-repeat="leaf in rootNode.kids" class="leaf-node selected-{{leaf.checked}}">
+                                <div ng-repeat="leaf in rootNode.kids " class="leaf-node selected-{{leaf.checked}}">
                                     <div><input type="checkbox" name="tag[{{leaf.id}}]" ng-model="leaf.checked">
                                     {{leaf.tag }}</div>
                                 </div>
@@ -49,6 +49,7 @@
                     <div id="tab">
                         <h2 align="center">Objects</h2>
                         <div id="object_filter" class="filter" ng-controller="ObjectsCtrl">
+                            Filter : <input ng-model="query">
                             <div><input type="checkbox" ng-model="forall" ng-change="toggle()">For all</div>
                             <table>
                                 <thead>
@@ -58,7 +59,7 @@
                                     <th></th>
                                 </tr>
                                 </thead>
-                                <tr ng-repeat="object in objects">
+                                <tr ng-repeat="object in objects | search: query">
                                     <td><input type="checkbox" ng-model="object.checked" name="object[{{object.id}}]"></td>
                                     <td>{{object.name}}</td>
                                     <td ng-show="rack(object.id)">
