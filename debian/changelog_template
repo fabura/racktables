@@ -1,0 +1,5 @@
+{component_name} ({commit_version}) {repo_name}; urgency=low
+
+  * Initial release
+
+ -- {maintainer_name} <{maintainer_email}>  {date_rfc}

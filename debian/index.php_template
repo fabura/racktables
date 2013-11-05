@@ -1,0 +1,9 @@
+<?php
+/** Created by bfattakhov 2013 */
+$host = $_SERVER['SERVER_NAME'];
+preg_match('@^(?:https?://)?(?:www\.)?([^.]+)@i', $host, $matches);
+$areaIdentifier = $matches[1];
+$racktables_gwdir = "{project_root}/config/$areaIdentifier/gateways";
+$racktables_plugins_dir = "{project_root}/config/$areaIdentifier/plugins";
+$racktables_confdir = "{project_root}/config/$areaIdentifier/configs";
+require "{project_root}/{component_name}/wwwroot/index.php";
