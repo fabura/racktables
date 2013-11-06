@@ -1872,6 +1872,10 @@ function getCellFilter ()
 		$ret['andor'] = getConfigVar ('FILTER_DEFAULT_ANDOR');
 	else
 		$ret['urlextra'] .= '&andor=' . $ret['andor'];
+
+    if(isset($_REQUEST['object_name_regex'])){
+        $ret['object_name_regex'] = $_REQUEST['object_name_regex'];
+    }
 	return $ret;
 }
 
@@ -1883,15 +1887,20 @@ function buildRedirectURL ($nextpage = NULL, $nexttab = NULL, $moreArgs = array(
 	if ($nexttab === NULL)
 		$nexttab = $tabno;
 	$url = "index.php?page=${nextpage}&tab=${nexttab}";
+	if (isset ($page[$nextpage]['bypass']))
+		$url .= '&' . $page[$nextpage]['bypass'] . '=' . $_REQUEST[$page[$nextpage]['bypass']];
+	if (isset ($page[$nextpage]['bypass_tabs']))
+		foreach ($page[$nextpage]['bypass_tabs'] as $param_name)
+			if (isset ($_REQUEST[$param_name]))
+				$url .= '&' . urlencode ($param_name) . '=' . urlencode ($_REQUEST[$param_name]);
 
-	if ($nextpage === $pageno)
-		fillBypassValues ($nextpage, $moreArgs);
-	foreach ($moreArgs as $arg => $value)
-		if (is_array ($value))
-			foreach ($value as $v)
-				$url .= '&' . urlencode ($arg . '[]') . '=' . urlencode ($v);
-		elseif ($arg != 'module')
-			$url .= '&' . urlencode ($arg) . '=' . urlencode ($value);
+	if (count ($moreArgs) > 0)
+		foreach ($moreArgs as $arg => $value)
+			if (is_array ($value))
+				foreach ($value as $v)
+					$url .= '&' . urlencode ($arg . '[]') . '=' . urlencode ($v);
+			elseif ($arg != 'module')
+				$url .= '&' . urlencode ($arg) . '=' . urlencode ($value);
 	return $url;
 }
 
@@ -2011,14 +2020,14 @@ function IPCmp ($ip_binA, $ip_binB)
 
 // Compare networks. When sorting a tree, the records on the list will have
 // distinct base IP addresses.
-// valid return values are: 2, 1, 0, -1, -2
-// -2, 2 have special meaning: $netA includes $netB or vice versa, respecively
 // "The comparison function must return an integer less than, equal to, or greater
 // than zero if the first argument is considered to be respectively less than,
 // equal to, or greater than the second." (c) PHP manual
 function IPNetworkCmp ($netA, $netB)
 {
-	$ret = IPCmp ($netA['ip_bin'], $netB['ip_bin']);
+	if (strlen ($netA['ip_bin']) !== strlen ($netB['ip_bin']))
+		return strlen ($netA['ip_bin']) < strlen ($netB['ip_bin']) ? -1 : 1;
+	$ret = strcmp ($netA['ip_bin'], $netB['ip_bin']);
 	if ($ret == 0)
 		$ret = $netA['mask'] < $netB['mask'] ? -1 : ($netA['mask'] > $netB['mask'] ? 1 : 0);
 	if ($ret == -1 and $netA['ip_bin'] === ($netB['ip_bin'] & $netA['mask_bin']))

@@ -1,0 +1,16 @@
+Source: {component_name}
+Section: web
+Priority: extra
+Maintainer: {maintainer_name} <{maintainer_email}>
+Uploaders: {maintainer_name} <{maintainer_email}>
+Build-Depends: debhelper (>= 7.0.50~), ant, ant-optional
+Standards-Version: 3.9.1
+Homepage: http://inn.ru
+#Vcs-Git: ssh://github.com/fabura/racktables.git
+
+Package: {component_name}
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Suggests: php5-fpm (>= 5.1.0)
+Description: RackTables - servers managing tool
+ Tool for manage servers.

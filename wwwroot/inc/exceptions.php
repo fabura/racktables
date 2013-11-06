@@ -301,6 +301,7 @@ function printGenericException($e)
 
 function printException($e)
 {
+	global $debug_mode;
 	if ($e instanceof RackTablesError)
 		$e->dispatch();
 	elseif ($e instanceof PDOException)

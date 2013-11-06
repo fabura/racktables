@@ -1,0 +1,5 @@
+gateways {project_root}/{component_name}
+scripts {project_root}/{component_name}
+plugins {project_root}/{component_name}
+wwwroot {project_root}/{component_name}
+debian/index.php /var/www/racktables

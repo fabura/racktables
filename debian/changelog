@@ -1,0 +1,5 @@
+inn-racktables.master (3.9) unstable; urgency=low
+
+  * Initial release
+
+ -- Go CI <go@go.srv.inn.ru>  Tue, 05 Nov 2013 18:12:36 +0400

@@ -1,0 +1,99 @@
+.separator {
+    border-bottom: 2px solid gray;
+}
+
+#taghistory {
+    margin: 20px;
+}
+
+.root-node {
+    /*background: green;*/
+    padding-left: 16px;
+}
+
+.leaf-node {
+    /*background: red;*/
+    padding-left: 26px;
+}
+
+.filters .selected-true {
+    background-color: #808080;
+}
+
+div.data {
+    float: left;
+    padding: 10px;
+    width: 50%;
+}
+
+.data table {
+    width: 100%;
+}
+
+div.filters {
+    float: right;
+}
+
+.data tr {
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.data th {
+    font-size: larger;
+}
+
+.data  td {
+    padding: 3px;
+}
+
+.filter_panel {
+    width:50%;
+    float: left;
+}
+
+.filters{
+    height: 400px;
+    width: 47%;
+    /*border: 2px solid red;*/
+}
+#tab{
+    border: 2px solid gray;
+    float: left;
+}
+#tag_tree{
+    height: 675px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+#object_filter{
+    height: 675px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+#filter_buttons{
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 200px;
+    margin: 10px;
+  }
+
+
+#dateFrom, #dateTo{
+    float: right;
+}
+
+#btnSubmit{
+    width: 82%;
+    height: 30px;
+    font-size: large;
+    border-radius: 5px;
+}
+
+.row_plus {
+    background-color: #ffffff;
+}
+
+.row_minus {
+    background-color: #aaaaaa;
+}

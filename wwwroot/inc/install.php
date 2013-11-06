@@ -527,17 +527,14 @@ function get_pseudo_file ($name)
 
 		$query[] = "CREATE TABLE `CactiGraph` (
   `object_id` int(10) unsigned NOT NULL,
-  `server_id` int(10) unsigned NOT NULL,
   `graph_id` int(10) unsigned NOT NULL,
   `caption`  char(255) DEFAULT NULL,
-  PRIMARY KEY (`server_id`,`graph_id`),
+  PRIMARY KEY  (`graph_id`),
   KEY `object_id` (`object_id`),
-  KEY `graph_id` (`graph_id`),
-  CONSTRAINT `CactiGraph-FK-server_id` FOREIGN KEY (`server_id`) REFERENCES `CactiServer` (`id`),
   CONSTRAINT `CactiGraph-FK-object_id` FOREIGN KEY (`object_id`) REFERENCES `Object` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB";
 
-		$query[] = "CREATE TABLE `CactiServer` (
+CREATE TABLE `Chapter` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `base_url` char(255) DEFAULT NULL,
   `username` char(64) DEFAULT NULL,
@@ -567,10 +564,9 @@ function get_pseudo_file ($name)
 		$query[] = "CREATE TABLE `Dictionary` (
   `chapter_id` int(10) unsigned NOT NULL,
   `dict_key` int(10) unsigned NOT NULL auto_increment,
-  `dict_sticky` enum('yes','no') DEFAULT 'no',
   `dict_value` char(255) default NULL,
   PRIMARY KEY  (`dict_key`),
-  UNIQUE KEY `dict_unique` (`chapter_id`,`dict_value`,`dict_sticky`),
+  UNIQUE KEY `chap_to_val` (`chapter_id`,`dict_value`),
   CONSTRAINT `Dictionary-FK-chapter_id` FOREIGN KEY (`chapter_id`) REFERENCES `Chapter` (`id`)
 ) ENGINE=InnoDB";
 
@@ -791,10 +787,8 @@ function get_pseudo_file ($name)
   `comment` text,
   PRIMARY KEY  (`id`),
   KEY `object_id` (`object_id`),
-  CONSTRAINT `MountOperation-FK-object_id` FOREIGN KEY (`object_id`) REFERENCES `Object` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `MountOperation-FK-old_molecule_id` FOREIGN KEY (`old_molecule_id`) REFERENCES `Molecule` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `MountOperation-FK-new_molecule_id` FOREIGN KEY (`new_molecule_id`) REFERENCES `Molecule` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB";
+  CONSTRAINT `MountOperation-FK-object_id` FOREIGN KEY (`object_id`) REFERENCES `Object` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB;
 
 		$query[] = "CREATE TABLE `MuninGraph` (
   `object_id` int(10) unsigned NOT NULL,
@@ -934,7 +928,9 @@ function get_pseudo_file ($name)
   `comment` text,
   `ctime` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `user_name` char(64) default NULL,
-  KEY `id` (`id`),
+  `object_history_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`object_history_id`),
+  INDEX `id` (`id`),
   CONSTRAINT `ObjectHistory-FK-object_id` FOREIGN KEY (`id`) REFERENCES `Object` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB";
 
@@ -975,9 +971,35 @@ function get_pseudo_file ($name)
   KEY `TagStorage-FK-tag_id` (`tag_id`),
   KEY `tag_id-tag_is_assignable` (`tag_id`,`tag_is_assignable`),
   CONSTRAINT `TagStorage-FK-TagTree` FOREIGN KEY (`tag_id`, `tag_is_assignable`) REFERENCES `TagTree` (`id`, `is_assignable`)
-) ENGINE=InnoDB";
+) ENGINE=InnoDB;
 
-		$query[] = "CREATE TABLE `TagTree` (
+CREATE TABLE `TagHistory` (
+	`entity_realm` ENUM('file','ipv4net','ipv4rspool','ipv4vs','ipv6net','location','object','rack','user','vst') NOT NULL DEFAULT 'object',
+	`entity_id` INT(10) UNSIGNED NOT NULL,
+	`tag_id` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+	`tag_is_assignable` ENUM('yes','no') NOT NULL DEFAULT 'yes',
+	`user` CHAR(64) NULL DEFAULT NULL,
+	`date` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+	`operation` ENUM('+','-') NOT NULL DEFAULT '+',
+	INDEX `entity_id` (`entity_id`),
+	INDEX `TagStorage-FK-tag_id` (`tag_id`)
+)
+COLLATE='utf8_general_ci'
+ENGINE=InnoDB;
+
+CREATE TRIGGER `TagHistoryDelete` AFTER DELETE ON `TagStorage` FOR EACH ROW INSERT INTO TagHistory SET  `entity_realm` = OLD.`entity_realm`,
+  `entity_id`  = OLD.`entity_id`,
+  `tag_id` = OLD.`tag_id`,
+  `user`  = OLD.`user`,
+  `operation` = '-';
+
+CREATE TRIGGER `TagHistoryInsert` AFTER INSERT ON `TagStorage` FOR EACH ROW INSERT INTO TagHistory SET  `entity_realm` = NEW.`entity_realm`,
+  `entity_id`  = NEW.`entity_id`,
+  `tag_id` = NEW.`tag_id`,
+  `user`  = NEW.`user`,
+  `operation` = '+';
+
+CREATE TABLE `TagTree` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `parent_id` int(10) unsigned default NULL,
   `is_assignable` enum('yes','no') NOT NULL DEFAULT 'yes',

@@ -1,0 +1,8 @@
+{component_name} binary: non-standard-toplevel-dir
+{component_name} binary: jar-not-in-usr-share
+{component_name} binary: file-in-unusual-dir
+{component_name} binary: php-script-but-no-phpX-cli-dep
+{component_name} binary: shell-script-fails-syntax-check
+{component_name} binary: copyright-should-refer-to-common-license-file-for-lgpl
+{component_name} binary: python-script-but-no-python-dep
+{component_name} binary: dir-or-file-in-var-www

@@ -340,12 +340,7 @@ function authenticated_via_ldap ($username, $password, &$ldap_displayname)
 	}
 	catch (PDOException $e)
 	{
-		if (isset ($debug_mode) && $debug_mode)
-			// in debug mode re-throw DB exception as-is
-			throw $e;
-		else
-			// re-create exception to hide private data from its backtrace
-			throw new RackTablesError ('LDAP caching error', RackTablesError::DB_WRITE_FAILED);
+		throw new RackTablesError ('LDAP caching error', RackTablesError::DB_WRITE_FAILED);
 	}
 }
 

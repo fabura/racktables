@@ -32,6 +32,7 @@ $SQLSchema = array
 			'nports' => '(SELECT COUNT(*) FROM Port WHERE object_id = RackObject.id)',
 			'8021q_domain_id' => '(SELECT domain_id FROM VLANSwitch WHERE object_id = id LIMIT 1)',
 			'8021q_template_id' => '(SELECT template_id FROM VLANSwitch WHERE object_id = id LIMIT 1)',
+            'serial_no' => "(SELECT string_value FROM AttributeValue WHERE AttributeValue.object_id = id AND attr_id = (SELECT `id` FROM Attribute WHERE `name` = 'OEM S/N 1'))"
 		),
 		'keycolumn' => 'id',
 		'ordcolumns' => array ('RackObject.name'),
@@ -206,6 +207,37 @@ $SQLSchema = array
 		'keycolumn' => 'id',
 		'ordcolumns' => array ('description'),
 	),
+    'tagHistory' => array
+    (
+        'table' => 'TagHistory',
+        'columns' => array
+        (
+            'id' => 'id',
+            'entity_realm' => 'entity_realm',
+            'entity_id' => 'entity_id',
+            'entity_name' =>   '(SELECT name FROM object WHERE object.id = entity_id)',
+            'tag_id' => 'tag_id',
+            'tag_name' => '(SELECT tag FROM tagtree WHERE tagtree.id = tag_id )',
+            'user' => 'user',
+            'stamp' => 'UNIX_TIMESTAMP(date)',
+            'date' => 'date',
+            'operation' => 'operation'
+        ),
+        'keycolumn' => 'id',
+        'ordcolumns' => array('date'),
+    ),
+    'tag' => array
+    (
+        'table' => 'TagTree',
+        'columns' => array
+        (
+            'id' => 'id',
+            'parent_id' => 'parent_id',
+            'tag' => 'tag',
+        ),
+        'keycolumn' => 'id',
+        'ordcolumns' => array('id'),
+    ),
 );
 
 $searchfunc = array
@@ -1572,7 +1604,8 @@ function recordObjectHistory ($object_id)
 	global $remote_username;
 	usePreparedExecuteBlade
 	(
-		"INSERT INTO ObjectHistory SELECT *, CURRENT_TIMESTAMP(), ? FROM Object WHERE id=?",
+		"INSERT INTO ObjectHistory (id, `name`, `label`, objtype_id, asset_no, has_problems, `comment`, ctime, user_name )
+ 		 SELECT id, `name`, label, objtype_id, asset_no, has_problems, `comment`, CURRENT_TIMESTAMP(), ? FROM Object WHERE id=?",
 		array ($remote_username, $object_id)
 	);
 }
@@ -1850,7 +1883,8 @@ function commitUnlinkPort ($link_id)
 		addPortLogEntry ($row['id_a'], sprintf ("unlinked from %s %s", $row['obj_name_b'], $row['port_name_b']));
 		addPortLogEntry ($row['id_b'], sprintf ("unlinked from %s %s", $row['obj_name_a'], $row['port_name_a']));
 	}
-
+	unset ($result);
+	
 	// remove existing link
 	usePreparedDeleteBlade ('Link', array ('id' => $link_id));
 }
@@ -2282,10 +2316,9 @@ function scanIPv6Space ($pairlist)
 			'object_name' => $row['object_name'],
 		);
 	}
-	unset ($result);
-
-	// 3a. look for virtual services
-	$query = "select id, vip from IPv4VS where ${whereexpr3a}";
+	
+	// 3. look for virtual services
+	$query = "select id, vip from IPv4VS where ${whereexpr3}";
 	$result = usePreparedSelectBlade ($query, $qparams);
 	$allRows = $result->fetchAll (PDO::FETCH_ASSOC);
 	unset ($result);
@@ -4007,6 +4040,10 @@ function generateEntityAutoTags ($cell)
 			$ret[] = array ('tag' => '$vstid_' . $cell['id']);
 			$ret[] = array ('tag' => '$any_vst');
 			break;
+        case 'tagHistory':
+            break;
+        case 'tag':
+            break;
 		default:
 			throw new InvalidArgException ('cell', '(array)', 'this input does not belong here');
 			break;
@@ -4849,12 +4886,15 @@ SELECT
 	vlan_type,
 	vlan_descr,
 	(SELECT COUNT(ipv4net_id) FROM VLANIPv4 AS VI WHERE VI.domain_id = VD.domain_id and VI.vlan_id = VD.vlan_id) +
+	(SELECT COUNT(ipv4net_id) FROM VLANIPv4 AS VI WHERE VI.domain_id = VD.domain_id and VI.vlan_id = VD.vlan_id) +
 	(SELECT COUNT(ipv6net_id) FROM VLANIPv6 AS VI WHERE VI.domain_id = VD.domain_id and VI.vlan_id = VD.vlan_id) AS netc,
 	(
 		SELECT COUNT(port_name)
 		FROM VLANSwitch AS VS INNER JOIN PortAllowedVLAN AS PAV ON VS.object_id = PAV.object_id
 		WHERE VS.domain_id = VD.domain_id and PAV.vlan_id = VD.vlan_id
 	) AS portc
+FROM
+	VLANDescription AS VD
 FROM
 	VLANDescription AS VD
 WHERE domain_id = ?
@@ -5150,7 +5190,7 @@ function replace8021QPorts ($instance = 'desired', $object_id, $before, $changes
 {
 	$done = 0;
 	foreach ($changes as $port_name => $port)
-		if
+		if 
 		(
 			!array_key_exists ($port_name, $before) or
 			!same8021QConfigs ($port, $before[$port_name])
