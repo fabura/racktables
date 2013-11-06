@@ -1,4 +1,4 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php  if (!defined('BASEPATH')) exit('No direct script access allowed');
 /*
 | -------------------------------------------------------------------
 | DATABASE CONNECTIVITY SETTINGS
@@ -48,21 +48,30 @@
 $active_group = 'default';
 $active_record = TRUE;
 
-$db['default']['hostname'] = 'localhost';
-$db['default']['username'] = 'root';
-$db['default']['password'] = 'fabura';
-$db['default']['database'] = 'racktables_db';
-$db['default']['dbdriver'] = 'mysql';
-$db['default']['dbprefix'] = '';
-$db['default']['pconnect'] = TRUE;
-$db['default']['db_debug'] = TRUE;
-$db['default']['cache_on'] = FALSE;
-$db['default']['cachedir'] = '';
-$db['default']['char_set'] = 'utf8';
-$db['default']['dbcollat'] = 'utf8_general_ci';
-$db['default']['swap_pre'] = '';
-$db['default']['autoinit'] = TRUE;
-$db['default']['stricton'] = FALSE;
+global $pdo_dsn, $db_username, $db_password;
+
+if (isset($pdo_dsn) && isset($db_username) && isset($db_password)) {
+    preg_match("@(mysql):host=([^;]+);dbname=([^;]+)@", $pdo_dsn, $matches);
+
+
+    $db['default']['hostname'] = $matches[2];
+    $db['default']['username'] = $db_username;
+    $db['default']['password'] = $db_password;
+    $db['default']['database'] = $matches[3];
+    $db['default']['dbdriver'] = $matches[1];
+    $db['default']['dbprefix'] = '';
+    $db['default']['pconnect'] = TRUE;
+    $db['default']['db_debug'] = TRUE;
+    $db['default']['cache_on'] = FALSE;
+    $db['default']['cachedir'] = '';
+    $db['default']['char_set'] = 'utf8';
+    $db['default']['dbcollat'] = 'utf8_general_ci';
+    $db['default']['swap_pre'] = '';
+    $db['default']['autoinit'] = TRUE;
+    $db['default']['stricton'] = FALSE;
+} else {
+    throw new Exception("There is not defined connection params in secret.php or secret.php is not loaded!");
+}
 
 
 /* End of file database.php */
